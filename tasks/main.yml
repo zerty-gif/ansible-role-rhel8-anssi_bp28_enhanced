@@ -184,11 +184,12 @@
   - no_reboot_needed
   - package_logrotate_installed
 
-- name: Configure the polyinstantiation_enabled SELinux Boolean - Ensure python3-libsemanage Installed
+- name: Configure the polyinstantiation_enabled SELinux Boolean - Ensure python3-libsemanage Installed (RHEL only)
   ansible.builtin.package:
     name: python3-libsemanage
     state: present
   when:
+  - is_rhel_family | default(false)
   - enable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -208,7 +209,7 @@
   - no_reboot_needed
   - sebool_polyinstantiation_enabled
 
-- name: 'Uninstall DHCP Server Package: Ensure dhcp-server is removed'
+- name: 'Uninstall DHCP Server Package: Ensure dhcp-server is removed (RHEL)'
   ansible.builtin.package:
     name: dhcp-server
     state: absent
@@ -226,6 +227,32 @@
   - no_reboot_needed
   - package_dhcp_removed
   when:
+  - is_rhel_family | default(false)
+  - disable_strategy | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - package_dhcp_removed | bool
+
+- name: 'Uninstall DHCP Server Package: Ensure isc-dhcp-server is removed (Debian)'
+  ansible.builtin.package:
+    name: isc-dhcp-server
+    state: absent
+  tags:
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.4
+  - disable_strategy
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - package_dhcp_removed
+  when:
+  - is_debian_family | default(false)
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -358,7 +385,7 @@
   - no_reboot_needed | bool
   - package_ypserv_removed | bool
 
-- name: 'Uninstall telnet-server Package: Ensure telnet-server is removed'
+- name: 'Uninstall telnet-server Package: Ensure telnet-server is removed (RHEL)'
   ansible.builtin.package:
     name: telnet-server
     state: absent
@@ -378,7 +405,34 @@
   - no_reboot_needed
   - package_telnet-server_removed
   when:
+  - is_rhel_family | default(false)
   - DISA_STIG_RHEL_08_040000 | bool
+  - disable_strategy | bool
+  - high_severity | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - no_reboot_needed | bool
+  - package_telnet_server_removed | bool
+
+- name: 'Uninstall telnet-server Package: Ensure telnetd is removed (Debian)'
+  ansible.builtin.package:
+    name: telnetd
+    state: absent
+  tags:
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - PCI-DSS-Req-2.2.2
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.4
+  - disable_strategy
+  - high_severity
+  - low_complexity
+  - low_disruption
+  - no_reboot_needed
+  - package_telnet-server_removed
+  when:
+  - is_debian_family | default(false)
   - disable_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -409,7 +463,7 @@
   - no_reboot_needed | bool
   - package_telnet_removed | bool
 
-- name: 'Uninstall tftp-server Package: Ensure tftp-server is removed'
+- name: 'Uninstall tftp-server Package: Ensure tftp-server is removed (RHEL)'
   ansible.builtin.package:
     name: tftp-server
     state: absent
@@ -428,7 +482,33 @@
   - no_reboot_needed
   - package_tftp-server_removed
   when:
+  - is_rhel_family | default(false)
   - DISA_STIG_RHEL_08_040190 | bool
+  - disable_strategy | bool
+  - high_severity | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - no_reboot_needed | bool
+  - package_tftp_server_removed | bool
+
+- name: 'Uninstall tftp-server Package: Ensure tftpd-hpa is removed (Debian)'
+  ansible.builtin.package:
+    name: tftpd-hpa
+    state: absent
+  tags:
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - PCI-DSSv4-2.2
+  - PCI-DSSv4-2.2.4
+  - disable_strategy
+  - high_severity
+  - low_complexity
+  - low_disruption
+  - no_reboot_needed
+  - package_tftp-server_removed
+  when:
+  - is_debian_family | default(false)
   - disable_strategy | bool
   - high_severity | bool
   - low_complexity | bool
@@ -24943,7 +25023,7 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Configure SELinux Policy
+- name: Configure SELinux Policy (RHEL only)
   block:
   - name: Check for duplicate values
     ansible.builtin.lineinfile:
@@ -24969,6 +25049,7 @@
       line: SELINUXTYPE={{ var_selinux_policy_name }}
       state: present
   when:
+  - is_rhel_family | default(false)
   - DISA_STIG_RHEL_08_010450 | bool
   - configure_strategy | bool
   - low_complexity | bool
@@ -24995,13 +25076,14 @@
   - no_reboot_needed
   - selinux_policytype
 
-- name: Ensure SELinux State is Enforcing - Check current SELinux state
+- name: Ensure SELinux State is Enforcing - Check current SELinux state (RHEL only)
   ansible.builtin.command:
     cmd: getenforce
   register: selinux_state
   check_mode: false
   changed_when: false
   when:
+  - is_rhel_family | default(false)
   - DISA_STIG_RHEL_08_010170 | bool
   - high_severity | bool
   - low_complexity | bool
@@ -25028,7 +25110,7 @@
   - restrict_strategy
   - selinux_state
 
-- name: Ensure SELinux State is Enforcing
+- name: Ensure SELinux State is Enforcing (RHEL only)
   block:
   - name: Check for duplicate values
     ansible.builtin.lineinfile:
@@ -25054,6 +25136,7 @@
       line: SELINUX={{ var_selinux_state }}
       state: present
   when:
+  - is_rhel_family | default(false)
   - DISA_STIG_RHEL_08_010170 | bool
   - high_severity | bool
   - low_complexity | bool
@@ -25080,13 +25163,14 @@
   - restrict_strategy
   - selinux_state
 
-- name: Ensure SELinux State is Enforcing - Mark system to relabel SELinux on next boot
+- name: Ensure SELinux State is Enforcing - Mark system to relabel SELinux on next boot (RHEL only)
   ansible.builtin.file:
     path: /.autorelabel
     state: touch
     access_time: preserve
     modification_time: preserve
   when:
+  - is_rhel_family | default(false)
   - DISA_STIG_RHEL_08_010170 | bool
   - high_severity | bool
   - low_complexity | bool
@@ -25114,12 +25198,13 @@
   - restrict_strategy
   - selinux_state
 
-- name: Configure the polyinstantiation_enabled SELinux Boolean - Set SELinux Boolean polyinstantiation_enabled Accordingly
+- name: Configure the polyinstantiation_enabled SELinux Boolean - Set SELinux Boolean polyinstantiation_enabled Accordingly (RHEL only)
   ansible.posix.seboolean:
     name: polyinstantiation_enabled
     state: '{{ var_polyinstantiation_enabled }}'
     persistent: true
   when:
+  - is_rhel_family | default(false)
   - enable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool

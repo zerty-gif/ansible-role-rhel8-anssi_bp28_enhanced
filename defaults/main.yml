@@ -1,5 +1,6 @@
 ---
-# defaults file for rhel8_anssi_bp28_enhanced
+# defaults file for anssi_bp28_enhanced
+# Supports: RHEL 8, Debian 11/12
 var_sudo_umask: '0077'
 var_authselect_profile: minimal
 var_password_pam_unix_remember: '2'
@@ -469,3 +470,9 @@ sysctl_vm_mmap_min_addr: true
 systemd_tmp_mount_enabled: true
 unknown_severity: true
 unknown_strategy: true
+
+# Debian-specific variables
+# Enable unattended-upgrades on Debian (equivalent to dnf-automatic on RHEL)
+package_unattended_upgrades_installed: true
+# AppArmor settings (Debian equivalent of SELinux)
+var_apparmor_profile: enforce

@@ -18,6 +18,15 @@ See the OpenSCAP project for more details on Ansible playbook generation at [htt
 To submit a fix or enhancement for an Ansible task that is failing or missing in this role,
 see the ComplianceAsCode project at [https://github.com/ComplianceAsCode/content](https://github.com/ComplianceAsCode/content)
 
+Supported Platforms
+-------------------
+
+- RHEL 8 (Red Hat Enterprise Linux 8)
+- Debian 11 (Bullseye)
+- Debian 12 (Bookworm)
+
+**Note for Debian users:** Some RHEL-specific features (such as SELinux, authselect) are automatically replaced with Debian equivalents (AppArmor, standard PAM configuration). Some tasks may be skipped if they are not applicable to Debian.
+
 Requirements
 ------------
 
@@ -36,12 +45,12 @@ N/A
 Example Role Usage
 ----------------
 
-Run `ansible-galaxy install RedHatOfficial.rhel8_anssi_bp28_enhanced` to
+Run `ansible-galaxy install RedHatOfficial.anssi_bp28_enhanced` to
 download and install the role. Then, you can use the following playbook snippet to run the Ansible role:
 
     - hosts: all
       roles:
-         - { role: RedHatOfficial.rhel8_anssi_bp28_enhanced }
+         - { role: RedHatOfficial.anssi_bp28_enhanced }
 
 Next, check the playbook using (on the localhost) the following example:
 

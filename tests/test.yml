@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - ansible-role-rhel8-anssi_bp28_enhanced
+    - anssi_bp28_enhanced

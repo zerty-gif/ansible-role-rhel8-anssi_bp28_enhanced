@@ -1359,7 +1359,7 @@
   - restrict_strategy
   - sudo_add_use_pty
 
-- name: Configure dnf-automatic to Install Available Updates Automatically
+- name: Configure dnf-automatic to Install Available Updates Automatically (RHEL only)
   community.general.ini_file:
     dest: /etc/dnf/automatic.conf
     section: commands
@@ -1367,6 +1367,7 @@
     value: 'yes'
     create: true
   when:
+  - is_rhel_family | default(false)
   - low_complexity | bool
   - medium_disruption | bool
   - medium_severity | bool
@@ -1387,7 +1388,7 @@
   - no_reboot_needed
   - unknown_strategy
 
-- name: Configure dnf-automatic to Install Only Security Updates
+- name: Configure dnf-automatic to Install Only Security Updates (RHEL only)
   community.general.ini_file:
     dest: /etc/dnf/automatic.conf
     section: commands
@@ -1395,6 +1396,7 @@
     value: security
     create: true
   when:
+  - is_rhel_family | default(false)
   - low_complexity | bool
   - low_severity | bool
   - medium_disruption | bool
@@ -1415,7 +1417,7 @@
   - no_reboot_needed
   - unknown_strategy
 
-- name: Ensure GPG check is globally activated
+- name: Ensure GPG check is globally activated (RHEL only)
   community.general.ini_file:
     dest: /etc/yum.conf
     section: main
@@ -1424,6 +1426,7 @@
     no_extra_spaces: true
     create: false
   when:
+  - is_rhel_family | default(false)
   - configure_strategy | bool
   - ensure_gpgcheck_globally_activated | bool
   - high_severity | bool
@@ -1499,7 +1502,7 @@
   - no_reboot_needed
   - unknown_strategy
 
-- name: Grep for yum repo section names
+- name: Grep for yum repo section names (RHEL only)
   ansible.builtin.shell: 'set -o pipefail
 
     grep -HEr ''^\[.+\]'' -r /etc/yum.repos.d/
@@ -1508,6 +1511,14 @@
   register: repo_grep_results
   failed_when: repo_grep_results.rc not in [0, 1]
   changed_when: false
+  when:
+  - is_rhel_family | default(false)
+  - enable_strategy | bool
+  - ensure_gpgcheck_never_disabled | bool
+  - high_severity | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
   tags:
   - CCE-80792-5
   - CJIS-5.10.4.1
@@ -1530,15 +1541,8 @@
   - low_complexity
   - medium_disruption
   - no_reboot_needed
-  when:
-  - enable_strategy | bool
-  - ensure_gpgcheck_never_disabled | bool
-  - high_severity | bool
-  - low_complexity | bool
-  - medium_disruption | bool
-  - no_reboot_needed | bool
 
-- name: Set gpgcheck=1 for each yum repo
+- name: Set gpgcheck=1 for each yum repo (RHEL only)
   community.general.ini_file:
     path: '{{ item[0] }}'
     section: '{{ item[1] }}'
@@ -1548,6 +1552,7 @@
   loop: '{{ repo_grep_results.stdout |regex_findall( ''(.+\.repo):\[(.+)\]\n?'' ) if repo_grep_results is not skipped else
     [] }}'
   when:
+  - is_rhel_family | default(false)
   - enable_strategy | bool
   - ensure_gpgcheck_never_disabled | bool
   - high_severity | bool
@@ -1578,11 +1583,20 @@
   - medium_disruption
   - no_reboot_needed
 
-- name: Read permission of GPG key directory
+- name: Read permission of GPG key directory (RHEL only)
   ansible.builtin.stat:
     path: /etc/pki/rpm-gpg/
   register: gpg_key_directory_permission
   check_mode: false
+  when:
+  - is_rhel_family | default(false)
+  - DISA_STIG_RHEL_08_010019 | bool
+  - ensure_redhat_gpgkey_installed | bool
+  - high_severity | bool
+  - medium_complexity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
   tags:
   - CCE-80795-8
   - CJIS-5.10.4.1
@@ -1602,21 +1616,22 @@
   - medium_disruption
   - no_reboot_needed
   - restrict_strategy
-  when:
-  - DISA_STIG_RHEL_08_010019 | bool
-  - ensure_redhat_gpgkey_installed | bool
-  - high_severity | bool
-  - medium_complexity | bool
-  - medium_disruption | bool
-  - no_reboot_needed | bool
-  - restrict_strategy | bool
 
-- name: Read signatures in GPG key
+- name: Read signatures in GPG key (RHEL only)
   ansible.builtin.command: gpg --show-keys --with-fingerprint --with-colons "/etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release"
   changed_when: false
   register: gpg_fingerprints
   failed_when: false
   check_mode: false
+  when:
+  - is_rhel_family | default(false)
+  - DISA_STIG_RHEL_08_010019 | bool
+  - ensure_redhat_gpgkey_installed | bool
+  - high_severity | bool
+  - medium_complexity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
   tags:
   - CCE-80795-8
   - CJIS-5.10.4.1
@@ -1636,20 +1651,21 @@
   - medium_disruption
   - no_reboot_needed
   - restrict_strategy
-  when:
-  - DISA_STIG_RHEL_08_010019 | bool
-  - ensure_redhat_gpgkey_installed | bool
-  - high_severity | bool
-  - medium_complexity | bool
-  - medium_disruption | bool
-  - no_reboot_needed | bool
-  - restrict_strategy | bool
 
-- name: Set Fact - Installed GPG Fingerprints
+- name: Set Fact - Installed GPG Fingerprints (RHEL only)
   ansible.builtin.set_fact:
     gpg_installed_fingerprints: '{{ gpg_fingerprints.stdout | regex_findall(''^pub.*
 
       (?:^fpr[:]*)([0-9A-Fa-f]*)'', ''\1'') | list }}'
+  when:
+  - is_rhel_family | default(false)
+  - DISA_STIG_RHEL_08_010019 | bool
+  - ensure_redhat_gpgkey_installed | bool
+  - high_severity | bool
+  - medium_complexity | bool
+  - medium_disruption | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
   tags:
   - CCE-80795-8
   - CJIS-5.10.4.1
@@ -1669,16 +1685,8 @@
   - medium_disruption
   - no_reboot_needed
   - restrict_strategy
-  when:
-  - DISA_STIG_RHEL_08_010019 | bool
-  - ensure_redhat_gpgkey_installed | bool
-  - high_severity | bool
-  - medium_complexity | bool
-  - medium_disruption | bool
-  - no_reboot_needed | bool
-  - restrict_strategy | bool
 
-- name: Set Fact - Valid fingerprints
+- name: Set Fact - Valid fingerprints (RHEL only)
   ansible.builtin.set_fact:
     gpg_valid_fingerprints:
     - 567E347AD0044ADE55BA8A5F199E2F91FD431D51

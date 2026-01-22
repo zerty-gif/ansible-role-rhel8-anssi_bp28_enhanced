@@ -472,10 +472,6 @@ unknown_severity: true
 unknown_strategy: true
 
 # Debian-specific variables
-# Package to check for detecting Debian (dpkg is always present on Debian)
-debian_package_detection: dpkg
-# Package to check for detecting RHEL (kernel-core is always present on RHEL)
-rhel_package_detection: kernel-core
 # Enable unattended-upgrades on Debian (equivalent to dnf-automatic on RHEL)
 package_unattended_upgrades_installed: true
 # AppArmor settings (Debian equivalent of SELinux)

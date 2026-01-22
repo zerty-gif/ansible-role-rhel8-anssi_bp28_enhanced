@@ -1,2 +1,3 @@
 ---
-# defaults file for rhel8_anssi_bp28_enhanced
+# vars file for anssi_bp28_enhanced
+# Distribution-specific variables are handled via conditionals in tasks

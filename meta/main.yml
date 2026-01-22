@@ -1,5 +1,5 @@
 galaxy_info:
-  role_name: rhel8_anssi_bp28_enhanced
+  role_name: anssi_bp28_enhanced
   author: ComplianceAsCode development team
   description: ANSSI-BP-028 (enhanced)
 
@@ -13,6 +13,10 @@ galaxy_info:
   - name: EL
     versions:
     - 8
+  - name: Debian
+    versions:
+    - bullseye
+    - bookworm
 
   galaxy_tags:
   - system
@@ -28,6 +32,7 @@ galaxy_info:
   - rhel8
   - anssibp28enhanced
   - anssi
+  - debian
 
 
 dependencies: []
